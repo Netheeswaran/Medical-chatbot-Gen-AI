@@ -1,10 +1,11 @@
 from flask import Flask, render_template, jsonify, request
 from src.helper import download_hugging_face_embeddings
 from langchain_pinecone import PineconeVectorStore
-from langchain_openai import OpenAI
+#from langchain_openai import OpenAI
+from langchain_groq import ChatGroq
 from langchain.chains import create_retrieval_chain
 from langchain.chains import RetrievalQA
-from langchain_openai import ChatOpenAI
+#from langchain_openai import ChatOpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -19,12 +20,14 @@ app = Flask(__name__)
 load_dotenv()
 
 api_key = os.environ.get('PINECONE_API_KEY')
+groq_api_key= os.environ.get('GROQ_API_KEY')
 
-
-openai_api_key = os.environ.get('OPENAI_API_KEY')
+#openai_api_key = os.environ.get('OPENAI_API_KEY')
 
 os.environ["PINECONE_API_KEY"] = api_key
-os.environ["OPENAI_API_KEY"] = openai_api_key
+os.environ["GROQ_API_KEY"] = groq_api_key
+
+#os.environ["OPENAI_API_KEY"] = openai_api_key
 
 # Load the PDF files, split the text, and download embeddings
 embeddings = download_hugging_face_embeddings()
@@ -42,7 +45,9 @@ docsearch = PineconeVectorStore.from_existing_index(
 retriever = docsearch.as_retriever(search_type="similarity",search_kwargs={"k": 3})
 
 # Create a question-answering chain using the OpenAI model and the retriever
-llm = OpenAI(temperature=0.4, max_tokens=500)
+#llm = OpenAI(temperature=0.4, max_tokens=500)
+
+llm = ChatGroq(temperature=0.7, model_name="llama3-70b-8192")
 prompt = ChatPromptTemplate.from_messages(
     [
         ("system", system_prompt),
