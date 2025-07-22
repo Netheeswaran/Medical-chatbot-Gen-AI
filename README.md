@@ -1,4 +1,4 @@
-# AI-Medical-LLM
+# End-to-end-Medical-chatbot-Gen-AI
 
 ## Project Overview:
 
